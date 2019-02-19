@@ -13,6 +13,11 @@ import {TranslateModule, TranslateService} from '../src/public_api';
       <div #withOtherElements translate>TEST1 <span>Hey</span> TEST2</div>
       <div #withParams [translate]="'TEST'" [translateParams]="value">Some init content</div>
       <div #withParamsNoKey translate [translateParams]="value">TEST</div>
+      <div #leadingSpaceNoKeyNoParams translate> TEST</div>
+      <div #trialingSpaceNoKeyNoParams translate>TEST </div>
+      <div #withSpaceAndLineBreakNoKeyNoParams translate>
+      TEST
+      </div>
   `
 })
 class App {
@@ -23,6 +28,9 @@ class App {
   @ViewChild('withParams') withParams: ElementRef;
   @ViewChild('withParamsNoKey') withParamsNoKey: ElementRef;
   @ViewChild('noContent') noContent: ElementRef;
+  @ViewChild('leadingSpaceNoKeyNoParams') leadingSpaceNoKeyNoParams: ElementRef;
+  @ViewChild('trialingSpaceNoKeyNoParams') trialingSpaceNoKeyNoParams: ElementRef;
+  @ViewChild('withSpaceAndLineBreakNoKeyNoParams') withSpaceAndLineBreakNoKeyNoParams: ElementRef;
   value = {value: 'ok'};
 
   constructor(viewContainerRef: ViewContainerRef) {
@@ -135,6 +143,54 @@ describe('TranslateDirective', () => {
     expect(fixture.componentInstance.noKey.nativeElement.innerHTML).toEqual("C'est un test");
     expect(fixture.componentInstance.withParams.nativeElement.innerHTML).toEqual("C'est un test");
     expect(fixture.componentInstance.noContent.nativeElement.innerHTML).toEqual("C'est un test");
+  });
+
+  it('should update the DOM when the lang changes and the translatione key starts with space', ()=>{
+    expect(fixture.componentInstance.leadingSpaceNoKeyNoParams.nativeElement.innerHTML).toEqual(' TEST');
+
+    const en="This is a test - with leading spaces in translation key";
+    const fr="C'est un test - pardon, je ne parle pas francais :)";
+    const leadingSpaceFromKey = ' ';
+    translate.setTranslation('en', {"TEST": en});
+    translate.setTranslation('fr', {"TEST": fr});
+
+    translate.use('en');
+    expect(fixture.componentInstance.leadingSpaceNoKeyNoParams.nativeElement.innerHTML).toEqual(leadingSpaceFromKey+en);
+
+    translate.use('fr');
+    expect(fixture.componentInstance.leadingSpaceNoKeyNoParams.nativeElement.innerHTML).toEqual(leadingSpaceFromKey+fr);
+  });
+
+  it('should update the DOM when the lang changes and the translatione key has line breaks and spaces', ()=>{
+    expect(fixture.componentInstance.withSpaceAndLineBreakNoKeyNoParams.nativeElement.innerHTML).toEqual(' TEST ');
+
+    const en="This is a test - with trailing spaces in translation key";
+    const fr="C'est un test - pardon, je ne parle pas francais :)";
+    const whiteSpaceFromKey = ' ';
+    translate.setTranslation('en', {"TEST": en});
+    translate.setTranslation('fr', {"TEST": fr});
+
+    translate.use('en');
+    expect(fixture.componentInstance.withSpaceAndLineBreakNoKeyNoParams.nativeElement.innerHTML).toEqual(whiteSpaceFromKey+en+whiteSpaceFromKey);
+
+    translate.use('fr');
+    expect(fixture.componentInstance.withSpaceAndLineBreakNoKeyNoParams.nativeElement.innerHTML).toEqual(whiteSpaceFromKey+fr+whiteSpaceFromKey);
+  });
+
+  it('should update the DOM when the lang changes and the translatione key ends with space', ()=>{
+    expect(fixture.componentInstance.trialingSpaceNoKeyNoParams.nativeElement.innerHTML).toEqual('TEST ');
+
+    const en="This is a test - with spaces and line breaks in translation key";
+    const fr="C'est un test - pardon, je ne parle pas francais :)";
+    const trailingSpaceFromKey = ' ';
+    translate.setTranslation('en', {"TEST": en});
+    translate.setTranslation('fr', {"TEST": fr});
+
+    translate.use('en');
+    expect(fixture.componentInstance.trialingSpaceNoKeyNoParams.nativeElement.innerHTML).toEqual(en+trailingSpaceFromKey);
+
+    translate.use('fr');
+    expect(fixture.componentInstance.trialingSpaceNoKeyNoParams.nativeElement.innerHTML).toEqual(fr+trailingSpaceFromKey);
   });
 
   it('should update the DOM when the lang changes and the translation ends with space', () => {
